@@ -5,6 +5,8 @@ use jakubenglicky\SmsManager\Message\Message;
 
 require_once __DIR__ . '/src/Bitrix/RestClient.php';
 require_once __DIR__ . '/src/Bitrix/ChatBot.php';
+require_once __DIR__ . '/src/Parser/BitrixParser.php';
+require_once __DIR__ . '/src/Parser/SmsParser.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (file_exists(__DIR__ . '/.env')) {
@@ -12,17 +14,22 @@ if (file_exists(__DIR__ . '/.env')) {
     $dotenv->load();
 }
 
+$message = file_get_contents("php://input");
 
-/*$msg = new Message();
-$msg->setTo(['+420604985457']);
-$msg->setBody('Test poslani SMS.');
+if ($message) {
+    $bitrixText = (new \TestomatoAlertBridge\Parser\BitrixParser())->parse($message);
+    $smsText = (new \TestomatoAlertBridge\Parser\SmsParser())->parse($message);
 
-$client = new Client('');
-$client->send($msg);
-*/
+    $msg = new Message();
+    $msg->setTo(['+420604985457']);
+    $msg->setBody($smsText);
 
-$bitrixEndpoint = getenv('BITRIX_ENDPOINT');
+    $client = new Client(getenv('SMS_API_KEY'));
+    $client->send($msg);
 
-$client = new \TestomatoAlertBridge\Bitrix\RestClient($bitrixEndpoint);
-$chatbot = new \TestomatoAlertBridge\Bitrix\ChatBot($client);
-$chatbot->sendMessage('Test z monitoringu', 1060);
+    $bitrixEndpoint = getenv('BITRIX_ENDPOINT');
+
+    $client = new \TestomatoAlertBridge\Bitrix\RestClient($bitrixEndpoint);
+    $chatbot = new \TestomatoAlertBridge\Bitrix\ChatBot($client);
+    $chatbot->sendMessage($bitrixText, 1060);
+}
