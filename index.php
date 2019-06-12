@@ -14,22 +14,24 @@ if (file_exists(__DIR__ . '/.env')) {
     $dotenv->load();
 }
 
-$message = file_get_contents("php://input");
+if ($_GET['token'] === getenv('SECURITY_TOKEN')) {
+    $message = file_get_contents("php://input");
 
-if ($message) {
-    $bitrixText = (new \TestomatoAlertBridge\Parser\BitrixParser())->parse($message);
-    $smsText = (new \TestomatoAlertBridge\Parser\SmsParser())->parse($message);
+    if ($message) {
+        $bitrixText = (new \TestomatoAlertBridge\Parser\BitrixParser())->parse($message);
+        $smsText = (new \TestomatoAlertBridge\Parser\SmsParser())->parse($message);
 
-    $msg = new Message();
-    $msg->setTo(['+420604985457']);
-    $msg->setBody($smsText);
+        $msg = new Message();
+        $msg->setTo(['+420604985457']);
+        $msg->setBody($smsText);
 
-    $client = new Client(getenv('SMS_API_KEY'));
-    $client->send($msg);
+        $client = new Client(getenv('SMS_API_KEY'));
+        $client->send($msg);
 
-    $bitrixEndpoint = getenv('BITRIX_ENDPOINT');
+        $bitrixEndpoint = getenv('BITRIX_ENDPOINT');
 
-    $client = new \TestomatoAlertBridge\Bitrix\RestClient($bitrixEndpoint);
-    $chatbot = new \TestomatoAlertBridge\Bitrix\ChatBot($client);
-    $chatbot->sendMessage($bitrixText, 1060);
+        $client = new \TestomatoAlertBridge\Bitrix\RestClient($bitrixEndpoint);
+        $chatbot = new \TestomatoAlertBridge\Bitrix\ChatBot($client);
+        $chatbot->sendMessage($bitrixText, 1060);
+    }
 }
