@@ -24,12 +24,10 @@ if ($_GET['token'] === getenv('SECURITY_TOKEN')) {
         $msg = new Message();
         $msg->setTo(['+420604985457']);
         $msg->setBody($smsText);
-
         $client = new Client(getenv('SMS_API_KEY'));
         $client->send($msg);
 
         $bitrixEndpoint = getenv('BITRIX_ENDPOINT');
-
         $client = new \TestomatoAlertBridge\Bitrix\RestClient($bitrixEndpoint);
         $chatbot = new \TestomatoAlertBridge\Bitrix\ChatBot($client);
         $chatbot->sendMessage($bitrixText, 1060);

@@ -1,6 +1,7 @@
 {
     "require": {
         "jakubenglicky/sms-manager": "^2.0",
-        "vlucas/phpdotenv": "^3.3"
+        "vlucas/phpdotenv": "^3.3",
+        "nette/utils": "^3.0"
     }
 }
